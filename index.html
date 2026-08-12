@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday JAA</title>
+    <!-- Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --bg-1: #050811;
+            --bg-2: #091322;
+            --card: rgba(10, 25, 47, 0.85);
+            --text: #ffffff;
+            --muted: #e7ddff;
+            --accent: #ffd700;
+            --accent-cyan: #00f2fe;
+            --accent-blue: #4facfe;
+            --shadow: rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(0, 242, 254, 0.15), transparent 30%),
+                radial-gradient(circle at bottom right, rgba(79, 172, 254, 0.15), transparent 32%),
+                linear-gradient(135deg, var(--bg-1), var(--bg-2) 50%, #03050a 100%);
+            color: var(--text);
+            overflow-x: hidden;
+            position: relative;
+            padding: 40px 20px;
+        }
+
+        /* Golden Ornamental Edge Designs */
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            width: 100px;
+            height: 100px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        body::before {
+            top: 15px;
+            left: 15px;
+            border-top: 4px solid var(--accent);
+            border-left: 4px solid var(--accent);
+            box-shadow: -2px -2px 15px rgba(255, 215, 0, 0.6);
+            border-top-left-radius: 12px;
+        }
+
+        body::after {
+            bottom: 15px;
+            right: 15px;
+            border-bottom: 4px solid var(--accent);
+            border-right: 4px solid var(--accent);
+            box-shadow: 2px 2px 15px rgba(255, 215, 0, 0.6);
+            border-bottom-right-radius: 12px;
+        }
+
+        /* Canvas background particles */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: min(850px, 92vw);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .top-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.4rem;
+            margin-bottom: 1.5rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            letter-spacing: 0.22rem;
+            text-transform: uppercase;
+            background: rgba(10, 25, 47, 0.7);
+            border: 1px solid var(--accent-cyan);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .top-badge:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.6);
+        }
+
+        /* Hero Card */
+        .hero {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            align-items: center;
+            gap: 1.5rem;
+            background: var(--card);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            border-radius: 26px;
+            padding: 2rem 1.5rem;
+            box-shadow: 0 18px 48px var(--shadow);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Interactive Cake Scene */
+        .cake-scene {
+            display: grid;
+            place-items: center;
+            min-height: 220px;
+        }
+
+        .cake {
+            position: relative;
+            width: 200px;
+            height: 170px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .cake:active {
+            transform: scale(0.95);
+        }
+
+        .cake-base {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 170px;
+            height: 60px;
+            border-radius: 18px 18px 24px 24px;
+            background: linear-gradient(180deg, #ffcaa8, #ffb56c);
+            box-shadow: inset 0 -10px 0 rgba(124, 69, 42, 0.15), 0 16px 24px rgba(0,0,0,0.3);
+        }
+
+        .cake-middle {
+            position: absolute;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 140px;
+            height: 48px;
+            border-radius: 16px;
+            background: linear-gradient(180deg, #ffecb2, #ffd166);
+        }
+
+        .cake-top {
+            position: absolute;
+            bottom: 112px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 110px;
+            height: 38px;
+            border-radius: 14px;
+            background: linear-gradient(180deg, #f8f3ff, #d9c8ff);
+        }
+
+        .candle {
+            position: absolute;
+            bottom: 138px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 10px;
+            height: 28px;
+            border-radius: 10px;
+            background: linear-gradient(180deg, #ffe9a3, #ffbf00);
+            box-shadow: 0 0 12px rgba(255, 211, 82, 0.8);
+        }
+
+        .flame {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 16px;
+            background: radial-gradient(circle, #fff2ae, #f9d65b 50%, #f4b942 100%);
+            border-radius: 50% 50% 35% 35%;
+            box-shadow: 0 0 18px rgba(255, 198, 76, 0.9);
+            animation: flicker 0.15s infinite alternate;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+        }
+
+        .flame.off {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .smoke {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .smoke.active {
+            animation: riseSmoke 1.2s ease-out forwards;
+        }
+
+        @keyframes riseSmoke {
+            0% { opacity: 0.8; transform: translate(-50%, 0) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -35px) scale(3); }
+        }
+
+        @keyframes flicker {
+            0% { transform: translateX(-50%) scale(1); }
+            100% { transform: translateX(-50%) scale(1.1); }
+        }
+
+        /* Floating Heading */
+        h1 {
+            font-size: clamp(2rem, 3.5vw, 3.2rem);
+            text-align: center;
+            line-height: 1.1;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 50%, #ffffff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 18px rgba(0, 242, 254, 0.5);
+            animation: float 3.5s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* General Card Sections */
+        .card-block {
+            width: 100%;
+            margin-top: 1.5rem;
+            padding: 25px;
+            border-radius: 18px;
+            background: var(--card);
+            border: 1px solid #1a365d;
+            text-align: center;
+            line-height: 1.8;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 10px 30px var(--shadow);
+        }
+
+        /* Animated Cyan-Navy-Blue Border for Intro */
+        #intro {
+            position: relative;
+            background: #091322;
+            border: none;
+        }
+
+        #intro::before {
+            content: '';
+            position: absolute;
+            top: -2px; left: -2px; right: -2px; bottom: -2px;
+            background: linear-gradient(90deg, #00f2fe, #0044ff, #000080, #4facfe, #00f2fe);
+            background-size: 400%;
+            border-radius: 20px;
+            z-index: -1;
+            animation: borderMove 6s linear infinite;
+        }
+
+        @keyframes borderMove {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 400% 0%; }
+        }
+
+        /* Poem Section */
+        #poem {
+            border: 2px solid var(--accent-cyan);
+            box-shadow: 0 10px 30px rgba(0, 242, 254, 0.25), inset 0 0 15px rgba(0, 242, 254, 0.1);
+        }
+
+        #poem h2 {
+            font-size: 1.6rem;
+            margin-bottom: 12px;
+            color: var(--accent);
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            border-bottom: 1px dashed rgba(255, 215, 0, 0.3);
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+
+        /* Footer Section */
+        #footer {
+            border: 2px solid var(--accent-blue);
+            box-shadow: 0 10px 30px rgba(79, 172, 254, 0.25);
+        }
+
+        p {
+            color: var(--muted);
+            font-size: 1.02rem;
+        }
+
+        b {
+            color: #fff1b0;
+        }
+
+        /* Glowing Confetti Button */
+        button {
+            margin-top: 18px;
+            padding: 14px 28px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #ffffff;
+            background: linear-gradient(135deg, #00f2fe, #0044ff);
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 0 15px #00f2fe, 0 0 30px rgba(0, 242, 254, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 0 25px #00f2fe, 0 0 50px rgba(0, 242, 254, 0.8);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        @media (max-width: 760px) {
+            .hero {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="container">
+        <div class="top-badge" id="topBadge">🎉 Birthday Wishes 🎉</div>
+
+        <section class="hero">
+            <div class="cake-scene">
+                <div class="cake" id="cake" title="Click the cake for confetti!">
+                    <div class="candle">
+                        <div class="flame" id="flame" title="Click to blow out candle"></div>
+                        <div class="smoke" id="smoke"></div>
+                    </div>
+                    <div class="cake-top"></div>
+                    <div class="cake-middle"></div>
+                    <div class="cake-base"></div>
+                </div>
+            </div>
+
+            <div class="title-wrap">
+                <h1>HAPPY BIRTHDAY<br><span>ASEDA</span></h1>
+            </div>
+        </section>
+
+        <div id="intro" class="card-block">
+            <p>
+                Happy Birthday JAA. I thank God for your life and for another year added to your age.<br>
+                I pray you have a blessed and fruitful day, year and life.<br>
+                <b>DISFRUTA TU DIA</b>
+            </p>
+        </div>
+
+        <div id="poem" class="card-block">
+            <h2>THANKSGIVING</h2>
+            <p>
+                A little over a decade ago, on this blessed day,<br>
+                a child was born, one of thanksgiving.<br>
+                He is smart, handsome, or so they say,<br>
+                But to me, he is amazing.<br>
+                A child of God, servant of the Lord.<br>
+                Great things he has done, greater things he will do.<br>
+                Enjoy your day, it is all for you.<br>
+                Jeremiah Aseda Antwi of 2 General Arts A, Prah House, Boys' Grounds Prefect;<br>
+                <b>Happy Birthday</b>
+            </p>
+        </div>
+
+        <div id="footer" class="card-block">
+            <p>
+                Once again, happy birthday, wishes from your twin-named school brother.<br>
+                Have a blessed week.<br>
+                <b>Enjoy</b><br>
+                <b>PS:</b> Do not wear your "self prescribed" unprescribed costume.
+            </p>
+            <button id="confettiBtn">FELIZ CUMPLEAÑOS</button>
+        </div>
+    </div>
+
+    <script>
+        // Confetti Functionality
+        function triggerConfetti() {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        }
+
+        // Fire on page load
+        window.addEventListener('DOMContentLoaded', triggerConfetti);
+
+        // Fire on buttons/cake clicks
+        document.getElementById('confettiBtn').addEventListener('click', triggerConfetti);
+        document.getElementById('topBadge').addEventListener('click', triggerConfetti);
+        document.getElementById('cake').addEventListener('click', triggerConfetti);
+
+        // Candle Blow Out Interaction
+        const flame = document.getElementById('flame');
+        const smoke = document.getElementById('smoke');
+
+        flame.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (flame.classList.contains('off')) {
+                flame.classList.remove('off');
+                triggerConfetti();
+            } else {
+                flame.classList.add('off');
+                smoke.classList.remove('active');
+                void smoke.offsetWidth; // Trigger reflow
+                smoke.classList.add('active');
+            }
+        });
+
+        // Dynamic Background Particles
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const particles = Array.from({ length: 40 }, () => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            radius: Math.random() * 2.5 + 1,
+            color: ['#00f2fe', '#4facfe', '#ffd700', '#ffffff'][Math.floor(Math.random() * 4)],
+            speedY: Math.random() * 0.5 + 0.2,
+            speedX: (Math.random() - 0.5) * 0.3
+        }));
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = 0.4;
+                ctx.fill();
+
+                p.y -= p.speedY;
+                p.x += p.speedX;
+
+                if (p.y < 0) {
+                    p.y = canvas.height;
+                    p.x = Math.random() * canvas.width;
+                }
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+    </script>
+</body>
+</html>
